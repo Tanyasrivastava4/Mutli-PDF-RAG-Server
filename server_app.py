@@ -14,6 +14,10 @@ app = FastAPI(title="Multi-PDF RAG Server")
 def root():
     return {"status": "ok", "message": "Multi-PDF RAG Server is running"}
 
+@app.get("/health")
+def health():
+return {"status": "ok"}
+
 # Hugging Face LLM
 model_name = "mistralai/Mistral-7B-v0.1"
 hf_token = os.environ.get("HF_TOKEN")
