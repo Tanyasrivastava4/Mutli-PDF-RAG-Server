@@ -1,6 +1,6 @@
 import chromadb
 from chromadb.config import Settings
-from utils.embedding import get_embeddings
+from utils.embeddings import get_embeddings
 
 client = chromadb.Client(Settings())
 
