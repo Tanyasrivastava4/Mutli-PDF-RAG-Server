@@ -1,7 +1,7 @@
 #!/bin/bash
-set -e  # Exit immediately if a command exits with non-zero status
+set -e  # Exit immediately if a command exits with non-zero status.
 
-# Print failing command before exiting
+# Print failing command before exiting.
 trap 'echo "[ERROR] Command failed: $BASH_COMMAND"' ERR
 
 echo "===== [Step 1] Cloning repository ====="
