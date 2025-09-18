@@ -1,7 +1,7 @@
 from fastapi import FastAPI, UploadFile, File, Form
 from pydantic import BaseModel
 from utils.chunking import chunk_pdf
-from utils.embedding import get_embeddings
+from utils.embeddings import get_embeddings
 from utils.retrieval import store_chunks, query_chunks
 from transformers import AutoTokenizer, AutoModelForCausalLM
 import torch
@@ -16,7 +16,7 @@ def root():
 
 @app.get("/health")
 def health():
-return {"status": "ok"}
+    return {"status": "ok"}
 
 # Hugging Face LLM
 model_name = "mistralai/Mistral-7B-v0.1"
