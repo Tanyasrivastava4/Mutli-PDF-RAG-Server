@@ -7,41 +7,9 @@ trap 'echo "[ERROR] Command failed: $BASH_COMMAND"' ERR
 
 echo "===== [Step 0] Update system packages ====="
 apt-get update -y
-apt-get install -y git curl wget libgl1 python3-venv python3-pip  # added python3-pip explicitly
+apt-get install -y git curl wget libgl1 python3-venv python3-pip
 
-echo "===== [Step 1] Setup virtual environment ====="
-if [ ! -d "venv" ]; then
-    python3 -m venv venv
-fi
-
-# Activate venv
-source venv/bin/activate
-
-echo "===== [Step 2] Upgrade pip ====="
-pip install --upgrade pip
-pip install fastapi uvicorn torch transformers sentence-transformers chromadb pdf2image pdfminer.six unstructured-inference pi_heif
-pip install unstructured unstructured-inference
-
-
-echo "===== [Step 3] Install essential Python packages ====="
-# Explicitly install uvicorn first to make sure server can run
-pip install uvicorn
-
-
-# Install other required packages
-REQUIRED_PACKAGES=(pdf2image pdfminer.six unstructured-inference pi_heif sentence-transformers)
-for pkg in "${REQUIRED_PACKAGES[@]}"; do
-    if ! pip show $pkg &> /dev/null; then
-        pip install $pkg
-    fi
-done
-
-# Install from requirements.txt if it exists
-if [ -f "requirements.txt" ]; then
-    pip install -r requirements.txt
-fi
-
-echo "===== [Step 4] Clone repository if not exists ====="
+echo "===== [Step 1] Clone repository if not exists ====="
 if [ ! -d "Mutli-PDF-RAG-Server" ]; then
     git clone https://github.com/Tanyasrivastava4/Mutli-PDF-RAG-Server.git
 else
@@ -50,6 +18,30 @@ fi
 
 cd Mutli-PDF-RAG-Server
 
-echo "===== [Step 5] Start Uvicorn server ====="
-uvicorn server_app:app --host 0.0.0.0 --port 8000
+echo "===== [Step 2] Setup virtual environment inside repo ====="
+if [ ! -d "venv" ]; then
+    python3 -m venv venv
+fi
 
+# Activate venv
+source venv/bin/activate
+
+echo "===== [Step 3] Upgrade pip and install dependencies ====="
+pip install --upgrade pip
+
+# Core dependencies
+pip install fastapi uvicorn torch transformers sentence-transformers chromadb
+
+# PDF + unstructured dependencies
+pip install pdf2image pdfminer.six unstructured unstructured-inference pi_heif
+
+# Fix for error: fitz module missing (PyMuPDF provides it)
+pip install PyMuPDF
+
+# Install from requirements.txt if it exists
+if [ -f "requirements.txt" ]; then
+    pip install -r requirements.txt
+fi
+
+echo "===== [Step 4] Start Uvicorn server ====="
+venv/bin/uvicorn server_app:app --host 0.0.0.0 --port 8000
