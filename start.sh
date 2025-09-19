@@ -19,6 +19,7 @@ source venv/bin/activate
 
 echo "===== [Step 2] Upgrade pip ====="
 pip install --upgrade pip
+pip install fastapi uvicorn torch transformers sentence-transformers chromadb pdf2image pdfminer.six unstructured-inference pi_heif
 
 echo "===== [Step 3] Install essential Python packages ====="
 # Explicitly install uvicorn first to make sure server can run
