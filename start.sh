@@ -25,6 +25,7 @@ echo "===== [Step 3] Install essential Python packages ====="
 # Explicitly install uvicorn first to make sure server can run
 pip install uvicorn
 
+
 # Install other required packages
 REQUIRED_PACKAGES=(pdf2image pdfminer.six unstructured-inference pi_heif sentence-transformers)
 for pkg in "${REQUIRED_PACKAGES[@]}"; do
