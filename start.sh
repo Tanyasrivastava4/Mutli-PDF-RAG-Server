@@ -44,4 +44,4 @@ if [ -f "requirements.txt" ]; then
 fi
 
 echo "===== [Step 4] Start Uvicorn server ====="
-venv/bin/uvicorn server_app:app --host 0.0.0.0 --port 8000
+venv/bin/uvicorn server_app:app --host 0.0.0.0 --port 8888
