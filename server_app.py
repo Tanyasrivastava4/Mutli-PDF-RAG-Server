@@ -100,4 +100,4 @@ async def ask(data: Question):
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("server_app:app", host="0.0.0.0", port=8888, reload=False)
+    uvicorn.run("server_app:app", host="0.0.0.0", port=80, reload=False)
