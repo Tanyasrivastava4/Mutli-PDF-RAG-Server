@@ -1,10 +1,12 @@
 #!/bin/bash
 
+
 # Make script executable and set error handling
 chmod +x start.sh
 set -e  # Exit immediately if a command fails
 set -x  # Print commands as they execute
 trap 'echo "[ERROR] Command failed: $BASH_COMMAND"' ERR
+
 
 echo "===== [Step 0] Update system packages ====="
 apt-get update -y
