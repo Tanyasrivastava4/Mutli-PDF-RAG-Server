@@ -46,7 +46,9 @@ pip install transformers==4.44.2 tokenizers==0.19.1 sentence-transformers==2.2.2
 pip install chromadb
 
 # PDF processing dependencies
-pip install PyMuPDF==1.23.0 pdf2image==1.17.0 pdfminer.six==20221105
+pip install PyMuPDF==1.23.0 pdf2image==1.17.0
+pip install --force-reinstall pdfminer.six==20221105
+
 
 # Unstructured dependencies
 pip install unstructured[pdf] unstructured-inference
