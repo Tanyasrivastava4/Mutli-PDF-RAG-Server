@@ -1,5 +1,4 @@
 #!/bin/bash
-chmod +x start.sh
 set -e  # Exit immediately if a command fails
 set -x  # Print commands as they execute
 
@@ -23,7 +22,7 @@ if [ ! -d "venv" ]; then
     python3 -m venv venv
 fi
 
-# Activate venv
+# Activate virtual environment
 source venv/bin/activate
 
 echo "===== [Step 3] Upgrade pip and install dependencies ====="
@@ -33,15 +32,26 @@ pip install --upgrade pip
 pip install fastapi uvicorn torch transformers sentence-transformers chromadb
 
 # PDF + unstructured dependencies
-pip install pdf2image pdfminer.six unstructured unstructured-inference pi_heif
-
-# Fix for error: fitz module missing (PyMuPDF provides it)
-pip install PyMuPDF
+pip install pdf2image pdfminer.six unstructured unstructured-inference pi_heif PyMuPDF
 
 # Install from requirements.txt if it exists
 if [ -f "requirements.txt" ]; then
     pip install -r requirements.txt
 fi
 
-echo "===== [Step 4] Start Uvicorn server ====="
-venv/bin/uvicorn server_app:app --host 0.0.0.0 --port 8000
+echo "===== [Step 4] Check available memory ====="
+python3 - <<EOF
+import psutil
+available_gb = psutil.virtual_memory().available / 1e9
+print(f"[MEMORY CHECK] Available RAM: {available_gb:.2f} GB")
+if available_gb < 10:
+    print("[WARNING] Available memory is low. Loading Mistral-7B may fail.")
+EOF
+
+echo "===== [Step 5] Start Uvicorn server ====="
+# Replace shell with uvicorn process to keep container alive
+exec venv/bin/uvicorn server_app:app \
+    --host 0.0.0.0 \
+    --port 8000 \
+    --workers 1 \
+    --timeout-keep-alive 300
