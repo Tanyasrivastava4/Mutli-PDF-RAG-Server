@@ -27,6 +27,7 @@ def chunk_pdf(file_path, doc_type="manual"):
             if text:
                 chunks.append(text.strip())
 
+    
     elif doc_type == "invoice":
         # Table extraction using PyMuPDF
         doc = fitz.open(file_path)
