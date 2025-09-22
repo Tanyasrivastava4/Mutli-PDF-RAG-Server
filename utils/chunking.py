@@ -4,6 +4,7 @@ import fitz  # PyMuPDF for table extraction
 
 # Folder where all PDFs are stored
 UPLOAD_DIR = "uploaded_pdfs"
+os.makedirs(UPLOAD_DIR, exist_ok=True)  # ensure folder exists
 
 def chunk_pdf(file_path, doc_type="manual"):
     """
@@ -20,14 +21,13 @@ def chunk_pdf(file_path, doc_type="manual"):
     chunks = []
 
     if doc_type == "research":
-        # Semantic chunking using unstructured partition
-        elements = partition_pdf(file_path, strategy="hi_res")
+        # Semantic chunking using unstructured partition (no OCR)
+        elements = partition_pdf(file_path)
         for el in elements:
             text = getattr(el, "text", None)
             if text:
                 chunks.append(text.strip())
 
-    
     elif doc_type == "invoice":
         # Table extraction using PyMuPDF
         doc = fitz.open(file_path)
@@ -39,7 +39,7 @@ def chunk_pdf(file_path, doc_type="manual"):
                     chunks.append(text)
 
     else:  # manual
-        elements = partition_pdf(file_path, strategy="hi_res")
+        elements = partition_pdf(file_path)  # no OCR
         current_section = ""
         for el in elements:
             text = getattr(el, "text", None)
