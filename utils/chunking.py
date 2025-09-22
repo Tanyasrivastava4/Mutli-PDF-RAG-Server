@@ -11,8 +11,8 @@ def chunk_pdf(pdf_path, doc_type="manual"):
     chunks = []
 
     if doc_type == "research":
-        # Semantic chunking using unstructured partition
-        elements = partition_pdf(pdf_path)
+        # Semantic chunking using unstructured partition, OCR disabled
+        elements = partition_pdf(pdf_path, ocr_agent=None, strategy="hi_res")
         for el in elements:
             text = el.text.strip()
             if text:
@@ -29,7 +29,8 @@ def chunk_pdf(pdf_path, doc_type="manual"):
                     chunks.append(text)
 
     else:  # manual
-        elements = partition_pdf(pdf_path)
+        # Section-based chunking, OCR disabled
+        elements = partition_pdf(pdf_path, ocr_agent=None, strategy="hi_res")
         current_section = ""
         for el in elements:
             text = el.text.strip()
@@ -44,4 +45,3 @@ def chunk_pdf(pdf_path, doc_type="manual"):
             chunks.append(current_section.strip())
 
     return chunks
-
