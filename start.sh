@@ -50,8 +50,12 @@ EOF
 
 echo "===== [Step 5] Start Uvicorn server ====="
 # Replace shell with uvicorn process to keep container alive
+
 exec venv/bin/uvicorn server_app:app \
-    --host 0.0.0.0 \
+    --host :: \
     --port 8000 \
     --workers 1 \
     --timeout-keep-alive 300
+
+
+    
