@@ -12,6 +12,7 @@ def chunk_pdf(file_path, doc_type="manual"):
     - research: semantic chunking
     - invoice: table extraction
     - manual: section-based chunking
+    OCR is completely disabled.
     """
 
     # Ensure file is inside UPLOAD_DIR
@@ -21,8 +22,8 @@ def chunk_pdf(file_path, doc_type="manual"):
     chunks = []
 
     if doc_type == "research":
-        # Semantic chunking using unstructured partition (no OCR)
-        elements = partition_pdf(file_path)
+        # Semantic chunking using unstructured partition, OCR disabled
+        elements = partition_pdf(file_path, strategy="fast")
         for el in elements:
             text = getattr(el, "text", None)
             if text:
@@ -39,7 +40,8 @@ def chunk_pdf(file_path, doc_type="manual"):
                     chunks.append(text)
 
     else:  # manual
-        elements = partition_pdf(file_path)  # no OCR
+        # Section-based chunking using unstructured partition, OCR disabled
+        elements = partition_pdf(file_path, strategy="fast")
         current_section = ""
         for el in elements:
             text = getattr(el, "text", None)
