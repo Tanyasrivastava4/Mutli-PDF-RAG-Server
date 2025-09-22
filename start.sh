@@ -34,6 +34,13 @@ pip install fastapi uvicorn torch transformers sentence-transformers chromadb
 # PDF + unstructured dependencies
 pip install pdf2image pdfminer.six unstructured unstructured-inference pi_heif PyMuPDF
 
+echo "===== [Step 0.5] Install Poppler for PDF processing ====="
+apt-get install -y poppler-utils
+
+echo "===== [Step 3.1] Install Python dependencies for local UI ====="
+pip install requests jinja2
+
+
 # Install from requirements.txt if it exists
 if [ -f "requirements.txt" ]; then
     pip install -r requirements.txt
