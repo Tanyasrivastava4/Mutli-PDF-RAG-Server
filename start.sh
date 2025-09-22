@@ -22,6 +22,7 @@ if [ ! -d "venv" ]; then
     python3 -m venv venv
 fi
 
+
 # Activate virtual environment
 source venv/bin/activate
 
@@ -66,3 +67,4 @@ exec venv/bin/uvicorn server_app:app \
 
 
     
+
