@@ -43,13 +43,13 @@ pip install torch==2.1.0 --index-url https://download.pytorch.org/whl/cpu
 pip install transformers==4.35.0 sentence-transformers==2.2.2
 
 # Vector database
-pip install chromadb==0.4.15
+pip install chromadb
 
 # PDF processing dependencies
-pip install PyMuPDF==1.23.0 pdf2image==3.1.0 pdfminer.six==20221105
+pip install PyMuPDF pdf2image pdfminer.six
 
 # Unstructured dependencies
-pip install unstructured[pdf]==0.10.30 unstructured-inference==0.7.11
+pip install unstructured[pdf] unstructured-inference
 
 # Additional utilities
 pip install python-multipart requests pillow
