@@ -40,13 +40,13 @@ pip install fastapi==0.104.1 uvicorn==0.24.0
 
 # ML dependencies
 pip install torch==2.1.0 --index-url https://download.pytorch.org/whl/cpu
-pip install transformers==4.35.0 sentence-transformers==2.2.2
+pip install transformers==4.44.2 tokenizers==0.19.1 sentence-transformers==2.2.2
 
 # Vector database
 pip install chromadb
 
 # PDF processing dependencies
-pip install PyMuPDF pdf2image pdfminer.six
+pip install PyMuPDF==1.23.0 pdf2image==1.17.0 pdfminer.six==20221105
 
 # Unstructured dependencies
 pip install unstructured[pdf] unstructured-inference
@@ -105,4 +105,5 @@ sleep 2
 
 # Start the FastAPI server
 echo "Starting FastAPI server..."
-exec venv/bin/uvicorn server_app:app --host 0.0.0.0 --port 8000 --workers 1 --timeout-keep-alive 300
+exec venv/bin/uvicorn server_app:app --host 0.0.0.0 --port 80 --workers 1 --timeout-keep-alive 300
+
