@@ -1,13 +1,23 @@
 from fastapi import FastAPI, UploadFile, File, Form
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel
+import os
+import torch
+from transformers import AutoTokenizer, AutoModelForCausalLM
+
+# Local utils
 from utils.chunking import chunk_pdf
 from utils.embeddings import get_embeddings
 from utils.retrieval import store_chunks, query_chunks
-from transformers import AutoTokenizer, AutoModelForCausalLM
-import torch
-import os
 
+# -----------------------------
+# FastAPI app
+# -----------------------------
 app = FastAPI(title="Multi-PDF RAG Server")
+
+# Directory for saving uploaded PDFs
+UPLOAD_DIR = "uploaded_pdfs"
+os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 # -----------------------------
 # Root & health endpoints
@@ -33,14 +43,20 @@ def load_model_safe():
     """
     try:
         print("Loading tokenizer...")
-        tokenizer = AutoTokenizer.from_pretrained(model_name, token=hf_token, cache_dir=cache_dir)
+        tokenizer = AutoTokenizer.from_pretrained(
+            model_name,
+            token=hf_token,
+            cache_dir=cache_dir
+        )
         print("Tokenizer loaded!")
 
         print("Loading model...")
-        # Use device_map="auto" if GPU is available, else fallback to CPU
         device_map = "auto" if torch.cuda.is_available() else None
         model = AutoModelForCausalLM.from_pretrained(
-            model_name, token=hf_token, cache_dir=cache_dir, device_map=device_map
+            model_name,
+            token=hf_token,
+            cache_dir=cache_dir,
+            device_map=device_map
         )
         print("Model loaded successfully!")
         return tokenizer, model
@@ -73,28 +89,35 @@ async def process_pdf(
     author: str = Form("unknown"),
     date: str = Form("unknown")
 ):
-    file_path = f"./temp_{file.filename}"
-    print(f"Saving uploaded PDF: {file.filename}")
-    with open(file_path, "wb") as f:
-        f.write(await file.read())
-
     try:
+        # Save PDF permanently inside uploaded_pdfs/
+        file_path = os.path.join(UPLOAD_DIR, file.filename)
+        print(f"Saving uploaded PDF: {file_path}")
+        with open(file_path, "wb") as f:
+            f.write(await file.read())
+
+        # Chunk the PDF
         chunks = chunk_pdf(file_path, doc_type=doc_type)
         print(f"{len(chunks)} chunks created")
+
+        # Generate embeddings
+        embeddings = get_embeddings(chunks)
+        print("Embeddings generated")
+
+        # Store chunks with metadata
+        metadata_list = [{"doc_type": doc_type, "author": author, "date": date} for _ in chunks]
+        store_chunks(chunks, metadata_list, embeddings, doc_type=doc_type)
+        print("Chunks stored successfully")
+
+        return {
+            "status": "success",
+            "message": f"{len(chunks)} chunks processed and stored successfully!",
+            "total_chunks": len(chunks),
+            "chunks_preview": chunks[:5]
+        }
+
     except Exception as e:
-        return {"error": f"Error during chunking: {str(e)}"}
-
-    embeddings = get_embeddings(chunks)
-    print("Embeddings generated")
-
-    metadata_list = [{"doc_type": doc_type, "author": author, "date": date} for _ in chunks]
-    store_chunks(chunks, metadata_list, embeddings, doc_type=doc_type)
-    print("Chunks stored successfully")
-
-    os.remove(file_path)
-    print("Temporary file removed")
-
-    return {"message": f"{len(chunks)} chunks processed and stored successfully!"}
+        return {"status": "error", "message": str(e)}
 
 # -----------------------------
 # Question answering endpoint
@@ -107,19 +130,21 @@ async def ask(data: Question):
     question_text = data.question.lower()
     print(f"Received question: {question_text}")
 
-    top_chunks = query_chunks(data.question)
-    print(f"Retrieved {len(top_chunks)} top chunks")
-
-    context = "\n".join(top_chunks)
-    prompt = f"Context:\n{context}\n\nQuestion: {data.question}\nAnswer:"
-
     try:
+        top_chunks = query_chunks(data.question)
+        print(f"Retrieved {len(top_chunks)} top chunks")
+
+        # Build context for LLM
+        context = "\n".join(top_chunks)
+        prompt = f"Context:\n{context}\n\nQuestion: {data.question}\nAnswer:"
+
         answer = generate_text(prompt)
         print("Answer generated successfully")
-    except Exception as e:
-        return {"error": f"Error during text generation: {str(e)}"}
 
-    return {"answer": answer}
+        return {"status": "success", "answer": answer}
+
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
 
 # -----------------------------
 # Run uvicorn if executed directly
